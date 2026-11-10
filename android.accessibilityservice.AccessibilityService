@@ -1,0 +1,31 @@
+package com.flow.offline
+
+import android.accessibilityservice.AccessibilityService
+import android.os.Bundle
+import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
+
+class TextInjectorService : AccessibilityService() {
+
+    companion object {
+        var instance: TextInjectorService? = null
+    }
+
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        instance = this
+    }
+
+    fun injectText(formattedText: String) {
+        val root = rootInActiveWindow ?: return
+        val inputNode = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return
+
+        val args = Bundle().apply {
+            putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, formattedText)
+        }
+        inputNode.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+    }
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
+    override fun onInterrupt() {}
+}
